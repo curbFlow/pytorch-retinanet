@@ -38,4 +38,4 @@ For the training script, a config file must be provided. An example config file 
 python train.py --h 
 ```
 
-For optimizing the anchors for the dataset, you can use this repo: https://github.com/curbFlow/anchor-optimization.
+For optimizing the anchors for the dataset, you can use [this repo](https://github.com/curbFlow/anchor-optimization).
