@@ -39,3 +39,7 @@ python train.py --h
 ```
 
 For optimizing the anchors for the dataset, you can use [this repo](https://github.com/curbFlow/anchor-optimization).
+
+##Evaluate
+
+`python3 eval.py --h`
