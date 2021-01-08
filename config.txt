@@ -1,13 +1,27 @@
 [TRAINING]
-batchsize = 1                                               # The batchsize for training
-depth = 18                                                  # The depth of the resnet backbone
-maxepochs = 100                                             # The maximum number of epochs to be trained for
-maxside = 1280                                              # The maximum side to scale the image
-minside = 732                                               # The minimum side to scale the image to
-savepath = datetime                                         # datetime creates a new directory everytime training starts
-                                                            # otherwise, put any path
+batchsize = 1
+# The batchsize for training
+
+depth = 18
+# The depth of the resnet backbone
+
+maxepochs = 100
+# The maximum number of epochs to be trained for
+
+maxside = 1280
+# The maximum side to scale the image
+
+minside = 732
+# The minimum side to scale the image to
+
+savepath = datetime
+# datetime creates a new directory everytime training starts
+# otherwise, put any path
 
 [MODEL]
-ratios = [0.46, 1.0, 2.174]                                # aspect ratios of the anchor box sizes
-scales = [0.4, 0.542, 1.333]                                # scales of the anchor boxes
+ratios = [0.46, 1.0, 2.174]
+# aspect ratios of the anchor box sizes
+
+scales = [0.4, 0.542, 1.333]
+# scales of the anchor boxes
 
