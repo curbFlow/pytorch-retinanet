@@ -26,20 +26,18 @@ def main(args=None):
         dataset_eval = None
         print('No validation annotations provided.')
     else:
-        dataset_eval = CSVDataset(train_file=parser.csv_val, class_list=parser.csv_classes,
-                                  transform=transforms.Compose([Normalizer(), Resizer(min_side=args.minside,
-                                                                                      max_side=args.maxside)]))
+        dataset_eval = CSVDataset(train_file=parser.csv, class_list=parser.csv_classes,
+                                  transform=transforms.Compose([Normalizer(), Resizer(min_side=int(parser.minside),
+                                                                                      max_side=int(parser.maxside))]))
 
-    retinanet = torch.load(args.model_path)
-
-    # Load the model
     if torch.cuda.is_available():
+        retinanet = torch.load(parser.model_path)
         retinanet = retinanet.cuda()
-
-    if torch.cuda.is_available():
         retinanet = torch.nn.DataParallel(retinanet).cuda()
     else:
+        retinanet = torch.load(parser.model_path, map_location=torch.device('cpu'))
         retinanet = torch.nn.DataParallel(retinanet)
+
 
     retinanet.eval()
 

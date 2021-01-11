@@ -236,7 +236,7 @@ def main(args=None):
 
     retinanet.eval()
 
-    torch.save(retinanet, os.path.join(model_save_dir, 'model_final.pt'))
+    torch.save(retinanet.module, os.path.join(model_save_dir, 'model_final.pt'))
 
     with open(os.path.join(model_save_dir, 'loss_history.txt'), 'w') as f:
         for epoch_num, loss in loss_dict.items():
