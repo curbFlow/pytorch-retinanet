@@ -27,7 +27,8 @@ def draw_caption(image, box, caption):
 
 
 def main(args=None):
-    parser = argparse.ArgumentParser(description='Simple training script for visualizing results from a RetinaNet network.')
+    parser = argparse.ArgumentParser(
+        description='Simple training script for visualizing results from a RetinaNet network.')
 
     parser.add_argument('--csv', help='Path to file containing annotations (optional, see readme)')
     parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')
@@ -114,7 +115,7 @@ def main(args=None):
 
             img = np.transpose(img, (1, 2, 0))
 
-            img = img.astype(np.uint8)
+            img = cv2.cvtColor(img.astype(np.uint8), cv2.COLOR_RGB2BGR)
 
             for j in range(idxs[0].shape[0]):
                 bbox = transformed_anchors[idxs[0][j], :]
