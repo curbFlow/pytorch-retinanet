@@ -31,7 +31,7 @@ def main(args=None):
 
     parser.add_argument('--csv', help='Path to file containing annotations (optional, see readme)')
     parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')
-    parser.add_argument('--model', help='Path to model (.pt) file.')
+    parser.add_argument('--model_path', help='Path to model (.pt) file.')
     parser.add_argument('--configfile', help='Path to the config file.')
     parser.add_argument('--out_path', help='Path to the folder where to save the images.')
 
