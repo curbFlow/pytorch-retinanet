@@ -14,7 +14,7 @@ import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from pytorchtools import EarlyStopping
+from pytorchtools import EarlyStopping, save_model
 from retinanet import csv_eval
 from retinanet import model
 from retinanet.dataloader import CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, \
@@ -225,7 +225,7 @@ def main(args=None):
         scheduler.step(np.mean(epoch_loss))
 
         model_save_path = os.path.join(model_save_dir, f'retinanet_{epoch_num}.pt')
-        torch.save(retinanet.module(), model_save_path)
+        save_model(retinanet, model_save_path)
         print(f'Saved model of epoch {epoch_num} to {model_save_path}')
 
         earlystopping(val_loss_dict[epoch_num], retinanet)
@@ -235,8 +235,7 @@ def main(args=None):
             break
 
     retinanet.eval()
-
-    torch.save(retinanet.module(), os.path.join(model_save_dir, 'model_final.pt'))
+    save_model(retinanet, os.path.join(model_save_dir, 'model_final.pt'))
 
     with open(os.path.join(model_save_dir, 'loss_history.txt'), 'w') as f:
         for epoch_num, loss in loss_dict.items():

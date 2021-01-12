@@ -2,6 +2,11 @@ import numpy as np
 import torch
 
 
+def save_model(model, path):
+    torch.save(model.module(), path)
+    torch.save(model.state_dict(), path + '.sd')
+
+
 class EarlyStopping:
     """Early stops the training if validation loss doesn't improve after a given patience."""
 
@@ -51,5 +56,5 @@ class EarlyStopping:
         if self.verbose:
             self.trace_func(
                 f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
-        torch.save(model.module(), self.path)
+        save_model(model, self.path)
         self.val_loss_min = val_loss

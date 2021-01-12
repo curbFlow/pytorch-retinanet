@@ -1,1 +1,1 @@
-from pytorchtools.pytorchtools import EarlyStopping
+from pytorchtools.pytorchtools import EarlyStopping, save_model
