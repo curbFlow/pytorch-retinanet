@@ -11,7 +11,7 @@ import numpy as np
 import torch
 
 from retinanet.model import PostProcessor
-from tools import Preprocessor, load_model, draw_caption
+from tools import Preprocessor, load_onnx_model, draw_caption
 
 
 def load_classes(csv_reader):
@@ -44,6 +44,9 @@ def detect_images(image_path, model_path, class_list, configfile, output_dir):
     configs = configparser.ConfigParser()
     configs.read(configfile)
 
+    configs = configparser.ConfigParser()
+    configs.read(configfile)
+
     try:
         input_shape = json.loads(configs['MODEL']['input_shape'])
         try:
@@ -59,7 +62,7 @@ def detect_images(image_path, model_path, class_list, configfile, output_dir):
         print("CONFIG FILE DOES NOT HAVE INPUT_SHAPE")
         sys.exit()
 
-    retinanet = load_model(model_path, configfile, no_nms=True)
+    sess, output_names, input_names = load_onnx_model(model_path)
 
     preprocessor = Preprocessor(input_width=input_shape[2], input_height=input_shape[1],
                                 mean=np.array([[[0.485, 0.456, 0.406]]]), std=np.array([[[0.229, 0.224, 0.225]]]))
@@ -80,37 +83,36 @@ def detect_images(image_path, model_path, class_list, configfile, output_dir):
         image = preprocessor(image)
         image = np.expand_dims(image, 0)
         image = np.transpose(image, (0, 3, 1, 2))
+        image = image.astype(np.float32)
+        batch = image.copy()
+        st = time.time()
+        regression, classification = sess.run(output_names, {input_names[0]: batch})
+        if torch.cuda.is_available():
+            regression = torch.from_numpy(regression).cuda()
+            classification = torch.from_numpy(classification).cuda()
+        else:
+            regression = torch.from_numpy(regression)
+            classification = torch.from_numpy(classification)
 
-        with torch.no_grad():
-            image = torch.from_numpy(image)
-            if torch.cuda.is_available():
-                image = image.cuda()
+        scores, classification, transformed_anchors = postprocessor(batch, regression, classification)
 
-            st = time.time()
-            if (torch.cuda.is_available()):
-                img_batch = image.cuda().float()
-            else:
-                img_batch = image.float()
+        print('Elapsed time: {}'.format(time.time() - st))
+        idxs = np.where(scores.cpu() > 0.35)
 
-            regression, classification = retinanet(img_batch)
-            scores, classification, transformed_anchors = postprocessor(img_batch, regression, classification)
+        for j in range(idxs[0].shape[0]):
+            bbox = transformed_anchors[idxs[0][j], :]
 
-            print('Elapsed time: {}'.format(time.time() - st))
-            idxs = np.where(scores.cpu() > 0.5)
+            x1 = int(bbox[0])
+            y1 = int(bbox[1])
+            x2 = int(bbox[2])
+            y2 = int(bbox[3])
+            label_name = labels[int(classification[idxs[0][j]])]
+            score = scores[j]
+            caption = '{} {:.3f}'.format(label_name, score)
+            draw_caption(image_orig, (x1, y1, x2, y2), caption)
+            cv2.rectangle(image_orig, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=2)
 
-            for j in range(idxs[0].shape[0]):
-                bbox = transformed_anchors[idxs[0][j], :]
-                x1 = int(bbox[0])
-                y1 = int(bbox[1])
-                x2 = int(bbox[2])
-                y2 = int(bbox[3])
-                label_name = labels[int(classification[idxs[0][j]])]
-                score = scores[j]
-                caption = '{} {:.3f}'.format(label_name, score)
-                draw_caption(image_orig, (x1, y1, x2, y2), caption)
-                cv2.rectangle(image_orig, (x1, y1), (x2, y2), color=(0, 0, 255), thickness=2)
-
-            cv2.imwrite(os.path.join(output_dir, img_name), image_orig)
+        cv2.imwrite(os.path.join(output_dir, img_name), image_orig)
 
 
 if __name__ == '__main__':

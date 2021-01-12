@@ -23,7 +23,7 @@ print('CUDA available: {}'.format(torch.cuda.is_available()))
 
 def main(args=None):
     parser = argparse.ArgumentParser(
-        description='Simple training script for visualizing results from a RetinaNet network.')
+        description='Simple script for visualizing results from a RetinaNet network using the csv dataset.')
 
     parser.add_argument('--csv', help='Path to file containing annotations (optional, see readme)')
     parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')

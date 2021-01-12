@@ -4,6 +4,7 @@ import sys
 
 import cv2
 import numpy as np
+import onnxruntime as rt
 import torch
 
 from retinanet import model
@@ -72,6 +73,14 @@ def load_model(model_path, configfile, no_nms=False):
     retinanet.eval()
 
     return retinanet
+
+
+def load_onnx_model(model_path):
+    sess = rt.InferenceSession(model_path)
+    output_names = [output.name for output in sess.get_outputs()]
+    input_names = [inp.name for inp in sess.get_inputs()]
+
+    return sess, output_names, input_names
 
 
 def draw_caption(image, box, caption):
