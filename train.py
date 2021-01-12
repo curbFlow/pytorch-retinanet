@@ -247,10 +247,10 @@ def main(args=None):
     # Write configs to directory
     configs = configparser.ConfigParser()
     configs.read(os.path.join(model_save_dir, 'config.txt'))
-    configs['TRAINING']['num_classes'] = dataset_train.num_classes()
+    configs['TRAINING']['num_classes'] = str(dataset_train.num_classes())
 
     for iter_num, data in enumerate(dataloader_train):
-        configs['MODEL']['input_shape'] = data['img'].float().shape
+        configs['MODEL']['input_shape'] = str(data['img'].float().shape)
         break
 
     with open(os.path.join(model_save_dir, 'config.txt'), 'w') as configfile:
