@@ -67,7 +67,7 @@ def main(args=None):
         print("CONFIG FILE DOES NOT HAVE INPUT_SHAPE")
         sys.exit()
 
-    retinanet = load_model(parser.model, parser.configfile)
+    retinanet = load_model(parser.model, parser.configfile, no_nms=True)
 
     input_shape = (1, 3, input_shape[1], input_shape[2])
     onnx_path = parser.out_name

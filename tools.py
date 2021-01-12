@@ -27,8 +27,7 @@ class Preprocessor(object):
         return ((image - self.mean) / self.std)
 
 
-def load_model(model_path, configfile):
-
+def load_model(model_path, configfile, no_nms=False):
     configs = configparser.ConfigParser()
     configs.read(configfile)
 
@@ -52,10 +51,10 @@ def load_model(model_path, configfile):
     # Create the model
     if depth == 18:
         retinanet = model.resnet18(num_classes=num_classes, pretrained=False, ratios=ratios,
-                                   scales=scales)
+                                   scales=scales, no_nms=no_nms)
     elif depth == 50:
         retinanet = model.resnet50(num_classes=num_classes, pretrained=True, ratios=ratios,
-                                   scales=scales)
+                                   scales=scales, no_nms=no_nms)
     else:
         print(f"DEPTH FROM : {configfile} INACCURATE. MUST BE 18 or 50")
         sys.exit(0)
