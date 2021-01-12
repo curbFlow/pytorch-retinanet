@@ -225,7 +225,7 @@ def main(args=None):
         scheduler.step(np.mean(epoch_loss))
 
         model_save_path = os.path.join(model_save_dir, f'retinanet_{epoch_num}.pt')
-        torch.save(retinanet.state_dict(), model_save_path)
+        torch.save(retinanet.module(), model_save_path)
         print(f'Saved model of epoch {epoch_num} to {model_save_path}')
 
         earlystopping(val_loss_dict[epoch_num], retinanet)
@@ -236,7 +236,7 @@ def main(args=None):
 
     retinanet.eval()
 
-    torch.save(retinanet.state_dict(), os.path.join(model_save_dir, 'model_final.pt'))
+    torch.save(retinanet.module(), os.path.join(model_save_dir, 'model_final.pt'))
 
     with open(os.path.join(model_save_dir, 'loss_history.txt'), 'w') as f:
         for epoch_num, loss in loss_dict.items():
