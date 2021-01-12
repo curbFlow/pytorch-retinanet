@@ -154,6 +154,7 @@ def main(args=None):
                 optimizer.zero_grad()
 
                 if torch.cuda.is_available():
+                    print(data['img'].cuda().float().shape)
                     classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
                 else:
                     classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
@@ -243,6 +244,18 @@ def main(args=None):
     with open(os.path.join(model_save_dir, 'val_loss_history.txt'), 'w') as f:
         for epoch_num, loss in val_loss_dict.items():
             f.write(f'{epoch_num}:{loss} \n')
+
+    # Write configs to directory
+    configs = configparser.ConfigParser()
+    configs.read(os.path.join(model_save_dir, 'config.txt'))
+    configs['TRAINING']['num_classes'] = dataset_train.num_classes()
+
+    for iter_num, data in enumerate(dataloader_train):
+        configs['MODEL']['input_shape'] = data['img'].float().shape
+        break
+
+    with open(os.path.join(model_save_dir, 'config.txt'), 'w') as configfile:
+        configs.write(configfile)
 
 
 if __name__ == '__main__':
