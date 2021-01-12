@@ -244,13 +244,13 @@ def main(args=None):
         for epoch_num, loss in val_loss_dict.items():
             f.write(f'{epoch_num}:{loss} \n')
 
-    # Write configs to directory
+    # Write configs to model save directory
     configs = configparser.ConfigParser()
     configs.read(os.path.join(model_save_dir, 'config.txt'))
     configs['TRAINING']['num_classes'] = str(dataset_train.num_classes())
 
     for iter_num, data in enumerate(dataloader_train):
-        configs['MODEL']['input_shape'] = str(data['img'].float().shape)
+        configs['MODEL']['input_shape'] = str(data['img'].float().numpy().shape[1:])
         break
 
     with open(os.path.join(model_save_dir, 'config.txt'), 'w') as configfile:
