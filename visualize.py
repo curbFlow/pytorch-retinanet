@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
-
+from tools import draw_caption
 from retinanet.dataloader import CSVDataset, collater, Resizer, AspectRatioBasedSampler, UnNormalizer, \
     Normalizer
 from tools import load_model
@@ -19,11 +19,6 @@ assert torch.__version__.split('.')[0] == '1'
 
 print('CUDA available: {}'.format(torch.cuda.is_available()))
 
-
-def draw_caption(image, box, caption):
-    b = np.array(box).astype(int)
-    cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 3)
-    cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 2)
 
 
 def main(args=None):

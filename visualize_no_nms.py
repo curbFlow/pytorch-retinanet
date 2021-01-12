@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 import torch
 
+from retinanet.model import PostProcessor
 from tools import Preprocessor, load_model, draw_caption
 
 
@@ -45,14 +46,24 @@ def detect_images(image_path, model_path, class_list, configfile, output_dir):
 
     try:
         input_shape = json.loads(configs['MODEL']['input_shape'])
+        try:
+            ratios = json.loads(configs['MODEL']['ratios'])
+            scales = json.loads(configs['MODEL']['scales'])
+        except Exception as e:
+            print(e)
+            print('USING DEFAULT RATIOS AND SCALES')
+            ratios = None
+            scales = None
+
     except:
         print("CONFIG FILE DOES NOT HAVE INPUT_SHAPE")
         sys.exit()
 
-    retinanet = load_model(model_path, configfile)
+    retinanet = load_model(model_path, configfile, no_nms=True)
 
     preprocessor = Preprocessor(input_width=input_shape[2], input_height=input_shape[1],
                                 mean=np.array([[[0.485, 0.456, 0.406]]]), std=np.array([[[0.229, 0.224, 0.225]]]))
+    postprocessor = PostProcessor(ratios=ratios, scales=scales)
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -77,16 +88,18 @@ def detect_images(image_path, model_path, class_list, configfile, output_dir):
 
             st = time.time()
             if (torch.cuda.is_available()):
-                scores, classification, transformed_anchors = retinanet(image.cuda().float())
+                img_batch = image.cuda().float()
             else:
-                scores, classification, transformed_anchors = retinanet(image.float())
+                img_batch = image.float()
+
+            regression, classification = retinanet(img_batch)
+            scores, classification, transformed_anchors = postprocessor(img_batch, regression, classification)
 
             print('Elapsed time: {}'.format(time.time() - st))
-            idxs = np.where(scores.cpu() > 0.35)
+            idxs = np.where(scores.cpu() > 0.5)
 
             for j in range(idxs[0].shape[0]):
                 bbox = transformed_anchors[idxs[0][j], :]
-
                 x1 = int(bbox[0])
                 y1 = int(bbox[1])
                 x2 = int(bbox[2])
