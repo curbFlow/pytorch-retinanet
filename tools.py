@@ -87,3 +87,20 @@ def draw_caption(image, box, caption):
     b = np.array(box).astype(int)
     cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 0), 2)
     cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 1)
+
+
+def load_classes(csv_reader):
+    result = {}
+
+    for line, row in enumerate(csv_reader):
+        line += 1
+        try:
+            class_name, class_id = row
+        except ValueError:
+            raise (ValueError('line {}: format should be \'class_name,class_id\''.format(line)))
+        class_id = int(class_id)
+
+        if class_name in result:
+            raise ValueError('line {}: duplicate class name: \'{}\''.format(line, class_name))
+        result[class_name] = class_id
+    return result

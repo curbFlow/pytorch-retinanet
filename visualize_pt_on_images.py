@@ -10,24 +10,7 @@ import cv2
 import numpy as np
 import torch
 
-from tools import Preprocessor, load_model, draw_caption
-
-
-def load_classes(csv_reader):
-    result = {}
-
-    for line, row in enumerate(csv_reader):
-        line += 1
-        try:
-            class_name, class_id = row
-        except ValueError:
-            raise (ValueError('line {}: format should be \'class_name,class_id\''.format(line)))
-        class_id = int(class_id)
-
-        if class_name in result:
-            raise ValueError('line {}: duplicate class name: \'{}\''.format(line, class_name))
-        result[class_name] = class_id
-    return result
+from tools import Preprocessor, load_model, draw_caption, load_classes
 
 
 def detect_images(image_path, model_path, class_list, configfile, output_dir):
