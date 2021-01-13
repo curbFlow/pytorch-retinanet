@@ -11,17 +11,15 @@ import numpy as np
 import torch
 
 from retinanet.model import PostProcessor
-from tools import Preprocessor, load_onnx_model, draw_caption, load_classes
+from tools import Preprocessor, load_onnx_model
+from utils.label_utils import load_classes
+from utils.drawing_utils import draw_caption
 
 
 def detect_images(image_path, model_path, class_list, configfile, output_dir):
     # Get class mapping
     with open(class_list, 'r') as f:
-        classes = load_classes(csv.reader(f, delimiter=','))
-
-    labels = {}
-    for key, value in classes.items():
-        labels[value] = key
+        labels = load_classes(csv.reader(f, delimiter=','))
 
     # Load model
     configs = configparser.ConfigParser()

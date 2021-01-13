@@ -253,6 +253,9 @@ def main(args=None):
         configs['MODEL']['input_shape'] = str(data['img'].float().numpy().shape[1:])
         break
 
+    #Write class mapping to the model configs.
+
+
     with open(os.path.join(model_save_dir, 'config.txt'), 'w') as configfile:
         configs.write(configfile)
 

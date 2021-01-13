@@ -12,8 +12,10 @@ import tensorrt as trt
 import torch
 
 from retinanet.model import PostProcessor
-from tools import Preprocessor, draw_caption, load_classes
+from tools import Preprocessor
 from trttools import common
+from utils.drawing_utils import draw_caption
+from utils.label_utils import load_classes
 
 TRT_LOGGER = trt.Logger(trt.Logger.VERBOSE)
 
@@ -67,11 +69,7 @@ def get_engine(engine_file_path=''):
 def detect_images(image_path, model_path, class_list, configfile, output_dir):
     # Get class mapping
     with open(class_list, 'r') as f:
-        classes = load_classes(csv.reader(f, delimiter=','))
-
-    labels = {}
-    for key, value in classes.items():
-        labels[value] = key
+        labels = load_classes(csv.reader(f, delimiter=','))
 
     # Load model
     configs = configparser.ConfigParser()

@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from tools import draw_caption
+from utils.drawing_utils import draw_caption
 from retinanet.dataloader import CSVDataset, collater, Resizer, AspectRatioBasedSampler, UnNormalizer, \
     Normalizer
 from tools import load_model
