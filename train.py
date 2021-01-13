@@ -1,6 +1,7 @@
 import argparse
 import collections
 import configparser
+import csv
 import json
 import os
 import shutil
@@ -19,6 +20,7 @@ from retinanet import csv_eval
 from retinanet import model
 from retinanet.dataloader import CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, \
     Normalizer
+from utils.label_utils import load_classes
 
 assert torch.__version__.split('.')[0] == '1'
 
@@ -96,19 +98,19 @@ def main(args=None):
     # Create the model
     if depth == 18:
         retinanet = model.resnet18(num_classes=dataset_train.num_classes(), pretrained=True, ratios=ratios,
-                                   scales=scales)
+                                   scales=scales, no_nms=False)
     elif depth == 34:
         retinanet = model.resnet34(num_classes=dataset_train.num_classes(), pretrained=True, ratios=ratios,
-                                   scales=scales)
+                                   scales=scales, no_nms=False)
     elif depth == 50:
         retinanet = model.resnet50(num_classes=dataset_train.num_classes(), pretrained=True, ratios=ratios,
-                                   scales=scales)
+                                   scales=scales, no_nms=False)
     elif depth == 101:
         retinanet = model.resnet101(num_classes=dataset_train.num_classes(), pretrained=True, ratios=ratios,
-                                    scales=scales)
+                                    scales=scales, no_nms=False)
     elif depth == 152:
         retinanet = model.resnet152(num_classes=dataset_train.num_classes(), pretrained=True, ratios=ratios,
-                                    scales=scales)
+                                    scales=scales, no_nms=False)
     else:
         raise ValueError('Unsupported model depth, must be one of 18, 34, 50, 101, 152')
 
@@ -218,6 +220,7 @@ def main(args=None):
             if (len(epoch_val_loss)):
                 val_loss_dict[epoch_num] = np.mean(epoch_val_loss)
 
+            retinanet.eval()
             mAP = csv_eval.evaluate(dataset_val, retinanet)
             print('-----------------')
             print(mAP)
@@ -253,9 +256,11 @@ def main(args=None):
         configs['MODEL']['input_shape'] = str(data['img'].float().numpy().shape[1:])
         break
 
-    #Write class mapping to the model configs.
+    # Write class mapping to the model configs.
+    with open(parser.csv_classes, 'r') as f:
+        labels = load_classes(csv.reader(f, delimiter=','))
 
-
+    configs['LABELMAP'] = {str(i): str(j) for i, j in labels.items()}
     with open(os.path.join(model_save_dir, 'config.txt'), 'w') as configfile:
         configs.write(configfile)
 
