@@ -1,4 +1,7 @@
-def load_classes(csv_reader):
+import configparser
+
+
+def load_classes_from_csv_reader(csv_reader):
     result = {}
     for line, row in enumerate(csv_reader):
         line += 1
@@ -17,3 +20,11 @@ def load_classes(csv_reader):
         labels[value] = key
 
     return labels
+
+
+def load_classes_from_configfile(configfile):
+    configs = configparser.ConfigParser()
+    configs.read(configfile)
+    labelmap = {int(i): str(j) for i, j in configs['LABELMAP'].items()}
+
+    return labelmap

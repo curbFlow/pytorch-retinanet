@@ -20,7 +20,7 @@ from retinanet import csv_eval
 from retinanet import model
 from retinanet.dataloader import CSVDataset, collater, Resizer, AspectRatioBasedSampler, Augmenter, \
     Normalizer
-from utils.label_utils import load_classes
+from utils.label_utils import load_classes_from_csv_reader
 
 assert torch.__version__.split('.')[0] == '1'
 
@@ -258,7 +258,7 @@ def main(args=None):
 
     # Write class mapping to the model configs.
     with open(parser.csv_classes, 'r') as f:
-        labels = load_classes(csv.reader(f, delimiter=','))
+        labels = load_classes_from_csv_reader(csv.reader(f, delimiter=','))
 
     configs['LABELMAP'] = {str(i): str(j) for i, j in labels.items()}
     with open(os.path.join(model_save_dir, 'config.txt'), 'w') as configfile:

@@ -11,16 +11,11 @@ import numpy as np
 import torch
 
 from tools import Preprocessor, load_model
-from utils.label_utils import load_classes
+from utils.label_utils import load_classes_from_configfile
 from utils.drawing_utils import draw_caption
 
 
-def detect_images(image_path, model_path, class_list, configfile, output_dir):
-    # Get class mapping
-    with open(class_list, 'r') as f:
-        labels = load_classes(csv.reader(f, delimiter=','))
-
-
+def detect_images(image_path, model_path,  configfile, output_dir):
     # Load model
     configs = configparser.ConfigParser()
     configs.read(configfile)
@@ -35,6 +30,8 @@ def detect_images(image_path, model_path, class_list, configfile, output_dir):
 
     preprocessor = Preprocessor(input_width=input_shape[2], input_height=input_shape[1],
                                 mean=np.array([[[0.485, 0.456, 0.406]]]), std=np.array([[[0.229, 0.224, 0.225]]]))
+    # Get labelmap
+    labels = load_classes_from_configfile(configfile)
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir, exist_ok=True)
@@ -87,10 +84,9 @@ if __name__ == '__main__':
 
     parser.add_argument('--image_dir', help='Path to directory containing images')
     parser.add_argument('--model_path', help='Path to model')
-    parser.add_argument('--class_list', help='Path to CSV file listing class names (see README)')
     parser.add_argument('--configfile', help='Path to the config file of the model')
     parser.add_argument('--out_dir', help='Path to the output directory', default='output_dir', required=False)
 
     parser = parser.parse_args()
 
-    detect_images(parser.image_dir, parser.model_path, parser.class_list, parser.configfile, parser.out_dir)
+    detect_images(parser.image_dir, parser.model_path,  parser.configfile, parser.out_dir)
