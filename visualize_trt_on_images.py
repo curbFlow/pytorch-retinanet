@@ -146,9 +146,6 @@ def detect_images(image_path, model_path, configfile, output_dir):
 
         regression, classification = [output.reshape(shape) for output, shape in zip(trt_outputs, output_shapes)]
 
-        print(regression.shape)
-        print(classification.shape)
-
         if torch.cuda.is_available():
             regression = torch.from_numpy(regression).cuda()
             classification = torch.from_numpy(classification).cuda()
