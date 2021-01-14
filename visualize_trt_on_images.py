@@ -128,6 +128,8 @@ def detect_images(image_path, model_path, configfile, output_dir):
     for img_name in os.listdir(image_path):
 
         image, image_orig, batch = preprocess_image(os.path.join(image_path, img_name), preprocessor)
+        if (image is None):
+            continue
         st = time.time()
 
         # TRT INFERENCE
