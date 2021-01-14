@@ -111,13 +111,13 @@ def detect_images(image_path, model_path, configfile, output_dir):
 
     input_shapes = []
     output_shapes = []
-    max_batch = 1
+
     for binding in engine:
         if engine.binding_is_input(binding):
             input_shapes.append(engine.get_binding_shape(binding))
         else:  # and one output
             output_shapes.append(engine.get_binding_shape(binding))
-            output_shapes[-1][0] = max_batch
+
     print(f'INPUT SHAPES:{input_shapes}, OUTPUT SHAPES:{output_shapes}')
 
     if not os.path.exists(output_dir):
@@ -139,7 +139,7 @@ def detect_images(image_path, model_path, configfile, output_dir):
             inputs=inputs,
             outputs=outputs,
             stream=stream,
-            batch_size=max_batch,
+            batch_size=1,
         )
 
         regression, classification = [output.reshape(shape) for output, shape in zip(trt_outputs, output_shapes)]
