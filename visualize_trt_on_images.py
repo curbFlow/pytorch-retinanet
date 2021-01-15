@@ -22,7 +22,7 @@ from utils.label_utils import load_classes_from_configfile
 def preprocess_image(image_path, preprocessor):
     image = cv2.imread(image_path)
     if image is None:
-        return None, None, None
+        return None, None, None, None
 
     image_orig = image.copy()
     image, scales = preprocessor(image)
