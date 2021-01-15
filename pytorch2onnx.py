@@ -73,7 +73,7 @@ def main(args=None):
     onnx_path = parser.out_name
 
     try:
-        export_onnx_model(retinanet.module, input_shape, onnx_path, output_names=['regression', 'classification'])
+        export_onnx_model(retinanet, input_shape, onnx_path, output_names=['regression', 'classification'])
         print('Model conversion finished')
     except Exception as e:
         print (e)
