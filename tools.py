@@ -64,11 +64,9 @@ def load_model(model_path, configfile, no_nms=False):
 
     if torch.cuda.is_available():
         retinanet = retinanet.cuda()
-        retinanet = torch.nn.DataParallel(retinanet).cuda()
         retinanet.load_state_dict(torch.load(model_path))
 
     else:
-        retinanet = torch.nn.DataParallel(retinanet)
         retinanet.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
 
     retinanet.training = False

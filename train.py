@@ -253,7 +253,7 @@ def main(args=None):
     configs['TRAINING']['num_classes'] = str(dataset_train.num_classes())
 
     for iter_num, data in enumerate(dataloader_train):
-        configs['MODEL']['input_shape'] = str(data['img'].float().numpy().shape[1:])
+        configs['MODEL']['input_shape'] = str(list(data['img'].float().numpy().shape[1:]))
         break
 
     # Write class mapping to the model configs.
