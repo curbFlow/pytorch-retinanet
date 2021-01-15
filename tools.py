@@ -21,11 +21,13 @@ class Preprocessor(object):
         assert (self.input_width % 32 == 0 and self.input_height % 32 == 0)
 
     def __call__(self, image, resized_only=False):
+        original_width, original_height = image.shape[1], image.shape[0]
         image = cv2.resize(image, (self.input_width, self.input_height))
         if (resized_only):
             return image
         image = image.astype(np.float32) / 255.0
-        return ((image - self.mean) / self.std)
+        scale_width, scale_height = self.input_width / original_width, self.input_height / original_height
+        return ((image - self.mean) / self.std), (scale_width, scale_height)
 
 
 def load_model(model_path, configfile, no_nms=False):
@@ -81,5 +83,3 @@ def load_onnx_model(model_path):
     input_names = [inp.name for inp in sess.get_inputs()]
 
     return sess, output_names, input_names
-
-

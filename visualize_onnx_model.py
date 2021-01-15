@@ -54,8 +54,8 @@ def detect_images(image_path, model_path, configfile, output_dir):
         if image is None:
             continue
 
-        image_orig = preprocessor(image, resized_only=True)
-        image = preprocessor(image)
+        image_orig = image.copy()
+        image,scales = preprocessor(image)
         image = np.expand_dims(image, 0)
         image = np.transpose(image, (0, 3, 1, 2))
         image = image.astype(np.float32)
@@ -77,10 +77,10 @@ def detect_images(image_path, model_path, configfile, output_dir):
         for j in range(idxs[0].shape[0]):
             bbox = transformed_anchors[idxs[0][j], :]
 
-            x1 = int(bbox[0])
-            y1 = int(bbox[1])
-            x2 = int(bbox[2])
-            y2 = int(bbox[3])
+            x1 = int(bbox[0]/scales[0])
+            y1 = int(bbox[1]/scales[1])
+            x2 = int(bbox[2]/scales[0])
+            y2 = int(bbox[3]/scales[1])
             label_name = labels[int(classification[idxs[0][j]])]
             score = scores[j]
             caption = '{} {:.3f}'.format(label_name, score)

@@ -1,6 +1,5 @@
 import argparse
 import configparser
-import csv
 import json
 import os
 import sys
@@ -12,12 +11,11 @@ import torch
 
 from retinanet.model import PostProcessor
 from tools import Preprocessor, load_model
-from utils.label_utils import load_classes_from_configfile
 from utils.drawing_utils import draw_caption
+from utils.label_utils import load_classes_from_configfile
 
 
-def detect_images(image_path, model_path,  configfile, output_dir):
-
+def detect_images(image_path, model_path, configfile, output_dir):
     # Load model
     configs = configparser.ConfigParser()
     configs.read(configfile)
@@ -57,8 +55,9 @@ def detect_images(image_path, model_path,  configfile, output_dir):
         if image is None:
             continue
 
-        image_orig = preprocessor(image, resized_only=True)
-        image = preprocessor(image)
+        image_orig = image.copy()
+        image, scales = preprocessor(image)
+
         image = np.expand_dims(image, 0)
         image = np.transpose(image, (0, 3, 1, 2))
 
@@ -81,10 +80,10 @@ def detect_images(image_path, model_path,  configfile, output_dir):
 
             for j in range(idxs[0].shape[0]):
                 bbox = transformed_anchors[idxs[0][j], :]
-                x1 = int(bbox[0])
-                y1 = int(bbox[1])
-                x2 = int(bbox[2])
-                y2 = int(bbox[3])
+                x1 = int(bbox[0] / scales[0])
+                y1 = int(bbox[1] / scales[1])
+                x2 = int(bbox[2] / scales[0])
+                y2 = int(bbox[3] / scales[1])
                 label_name = labels[int(classification[idxs[0][j]])]
                 score = scores[j]
                 caption = '{} {:.3f}'.format(label_name, score)
@@ -95,7 +94,8 @@ def detect_images(image_path, model_path,  configfile, output_dir):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Simple script for visualizing result of training with a network with external post processing.')
+    parser = argparse.ArgumentParser(
+        description='Simple script for visualizing result of training with a network with external post processing.')
 
     parser.add_argument('--image_dir', help='Path to directory containing images')
     parser.add_argument('--model_path', help='Path to model')
