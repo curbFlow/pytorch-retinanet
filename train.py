@@ -94,12 +94,12 @@ def main(args=None):
                                                                                      max_side=maxside)]))
 
     sampler = AspectRatioBasedSampler(dataset_train, batch_size=batchsize, drop_last=False)
-    dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=sampler)
+    dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=sampler, pin_memory=True)
     dataloader_val = None
 
     if dataset_val is not None:
         sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=1, drop_last=False)
-        dataloader_val = DataLoader(dataset_val, num_workers=3, collate_fn=collater, batch_sampler=sampler_val)
+        dataloader_val = DataLoader(dataset_val, num_workers=3, collate_fn=collater, batch_sampler=sampler_val, pin_memory=True)
 
     # Create the model
     if depth == 18:
@@ -148,6 +148,8 @@ def main(args=None):
         else:
             retinanet.load_state_dict(torch.load(parser.model, map_location=torch.device('cpu')))
         print(f'LOADED PRETRAINED MODEL : {parser.model}')
+
+
     retinanet.train()
     retinanet.module.freeze_bn()
     earlystopping = EarlyStopping(patience=earlystopping_patience, verbose=True, delta=1e-10,
@@ -168,11 +170,9 @@ def main(args=None):
         for iter_num, data in enumerate(dataloader_train):
             try:
                 optimizer.zero_grad()
-
                 if torch.cuda.is_available():
-                    target = data['annot'].cuda().set_device(0)
-                    input = data['img'].cuda().set_device(0)
-                    classification_loss, regression_loss = retinanet([input.float(), target])
+                    cuda0 = torch.device('cuda:0')
+                    classification_loss, regression_loss = retinanet([data['img'].cuda0().float(), data['annot'].cuda0()])
                 else:
                     classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
 
