@@ -126,8 +126,16 @@ def main(args=None):
         if torch.cuda.is_available():
             retinanet = retinanet.cuda()
 
+    if (parser.model):
+        print(f'TRYING TO LOAD PRETRAINED MODEL AVAILABLE AT: {parser.model}. MAKE SURE THE MODEL CONFIGS MATCH!!!!!')
+        if torch.cuda.is_available():
+            retinanet.load_state_dict(torch.load(parser.model))
+        else:
+            retinanet.load_state_dict(torch.load(parser.model, map_location=torch.device('cpu')))
+        print(f'LOADED PRETRAINED MODEL : {parser.model}')
+
     if torch.cuda.is_available():
-        retinanet = torch.nn.DataParallel(retinanet,device_ids=[0,1,2,3])
+        retinanet = torch.nn.DataParallel(retinanet).cuda()
     else:
         retinanet = torch.nn.DataParallel(retinanet)
 
@@ -140,14 +148,6 @@ def main(args=None):
                                                      min_lr=1e-10)
 
     loss_hist = collections.deque(maxlen=500)
-
-    if (parser.model):
-        print(f'TRYING TO LOAD PRETRAINED MODEL AVAILABLE AT: {parser.model}. MAKE SURE THE MODEL CONFIGS MATCH!!!!!')
-        if torch.cuda.is_available():
-            retinanet.load_state_dict(torch.load(parser.model))
-        else:
-            retinanet.load_state_dict(torch.load(parser.model, map_location=torch.device('cpu')))
-        print(f'LOADED PRETRAINED MODEL : {parser.model}')
 
     retinanet.train()
     retinanet.module.freeze_bn()
@@ -170,7 +170,8 @@ def main(args=None):
             try:
                 optimizer.zero_grad()
                 if torch.cuda.is_available():
-                    classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+                    with torch.device(0):
+                        classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
                 else:
                     classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
 
