@@ -119,7 +119,7 @@ class FocalLoss(nn.Module):
             cls_loss = focal_weight * bce
 
             if torch.cuda.is_available():
-                cls_loss = torch.where(torch.ne(targets, -1.0), cls_loss, torch.zeros(cls_loss.shape)).cuda()
+                cls_loss = torch.where(torch.ne(targets, -1.0), cls_loss, torch.zeros(cls_loss.shape).cuda())
             else:
                 cls_loss = torch.where(torch.ne(targets, -1.0), cls_loss, torch.zeros(cls_loss.shape))
 
@@ -163,7 +163,7 @@ class FocalLoss(nn.Module):
                 if torch.cuda.is_available():
                     regression_loss = torch.where(torch.le(regression_diff, 1.0 / 9.0),
                                                   0.5 * 9.0 * torch.pow(regression_diff, 2),
-                                                  regression_diff - 0.5 / 9.0).cuda()
+                                                  (regression_diff - 0.5 / 9.0).cuda())
                 else:
                     regression_loss = torch.where(torch.le(regression_diff, 1.0 / 9.0),
                                                   0.5 * 9.0 * torch.pow(regression_diff, 2),
