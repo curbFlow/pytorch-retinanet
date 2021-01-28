@@ -49,6 +49,10 @@ def main(args=None):
         maxside = int(configs['TRAINING']['maxside'])
         minside = int(configs['TRAINING']['minside'])
         savepath = configs['TRAINING']['savepath']
+        lr_start = float(configs['TRAINING']['lr_start'])
+        lr_reduce_on_plateau_factor = float(configs['TRAINING']['lr_reduce_on_plateau_factor'])
+        lr_reduce_on_plateau_patience = int(configs['TRAINING']['lr_reduce_on_plateau_patience'])
+        earlystopping_patience = int(configs['TRAINING']['lr_reduce_on_plateau_patience'])
         try:
             ratios = json.loads(configs['MODEL']['ratios'])
             scales = json.loads(configs['MODEL']['scales'])
@@ -129,12 +133,14 @@ def main(args=None):
 
     retinanet.training = True
 
-    optimizer = optim.Adam(retinanet.parameters(), lr=1e-4)
+    optimizer = optim.Adam(retinanet.parameters(), lr=lr_start)
 
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=3, verbose=True, factor=0.25, cooldown=1,
-                                                     min_lr=1e-9)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, patience=lr_reduce_on_plateau_patience, verbose=True,
+                                                     factor=lr_reduce_on_plateau_factor, cooldown=1,
+                                                     min_lr=1e-10)
 
     loss_hist = collections.deque(maxlen=500)
+
     if (parser.model):
         print(f'TRYING TO LOAD PRETRAINED MODEL AVAILABLE AT: {parser.model}. MAKE SURE THE MODEL CONFIGS MATCH!!!!!')
         if torch.cuda.is_available():
@@ -144,7 +150,7 @@ def main(args=None):
         print(f'LOADED PRETRAINED MODEL : {parser.model}')
     retinanet.train()
     retinanet.module.freeze_bn()
-    earlystopping = EarlyStopping(patience=10, verbose=True, delta=1e-10,
+    earlystopping = EarlyStopping(patience=earlystopping_patience, verbose=True, delta=1e-10,
                                   path=os.path.join(model_save_dir, 'best_model.pt'))
     print('Num training images: {}'.format(len(dataset_train)))
 
