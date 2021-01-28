@@ -34,7 +34,8 @@ def main(args=None):
     parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')
     parser.add_argument('--csv_val', help='Path to file containing validation annotations (optional, see readme)')
     parser.add_argument('--configfile', help='Path to the config file', default='config.txt', type=str)
-
+    parser.add_argument('--model', help='Path to the pretrained model file state dict where training must start from',
+                        default=None, type=str)
     parser = parser.parse_args(args)
 
     configs = configparser.ConfigParser()
@@ -133,7 +134,13 @@ def main(args=None):
                                                      min_lr=1e-9)
 
     loss_hist = collections.deque(maxlen=500)
-
+    if (parser.model):
+        print(f'TRYING TO LOAD PRETRAINED MODEL AVAILABLE AT: {parser.model}. MAKE SURE THE MODEL CONFIGS MATCH!!!!!')
+        if torch.cuda.is_available():
+            retinanet.load_state_dict(torch.load(parser.model))
+        else:
+            retinanet.load_state_dict(torch.load(parser.model, map_location=torch.device('cpu')))
+        print(f'LOADED PRETRAINED MODEL : {parser.model}')
     retinanet.train()
     retinanet.module.freeze_bn()
     earlystopping = EarlyStopping(patience=10, verbose=True, delta=1e-10,
