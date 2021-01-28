@@ -160,12 +160,7 @@ class FocalLoss(nn.Module):
                 negative_indices = 1 + (~positive_indices)
 
                 regression_diff = torch.abs(targets - regression[positive_indices, :])
-                if torch.cuda.is_available():
-                    regression_loss = torch.where(torch.le(regression_diff, 1.0 / 9.0),
-                                                  0.5 * 9.0 * torch.pow(regression_diff, 2),
-                                                  (regression_diff - 0.5 / 9.0).cuda())
-                else:
-                    regression_loss = torch.where(torch.le(regression_diff, 1.0 / 9.0),
+                regression_loss = torch.where(torch.le(regression_diff, 1.0 / 9.0),
                                                   0.5 * 9.0 * torch.pow(regression_diff, 2),
                                                   regression_diff - 0.5 / 9.0)
 
