@@ -52,7 +52,7 @@ def main(args=None):
         lr_start = float(configs['TRAINING']['lr_start'])
         lr_reduce_on_plateau_factor = float(configs['TRAINING']['lr_reduce_on_plateau_factor'])
         lr_reduce_on_plateau_patience = int(configs['TRAINING']['lr_reduce_on_plateau_patience'])
-        earlystopping_patience = int(configs['TRAINING']['lr_reduce_on_plateau_patience'])
+        earlystopping_patience = int(configs['TRAINING']['earlystopping_patience'])
         try:
             ratios = json.loads(configs['MODEL']['ratios'])
             scales = json.loads(configs['MODEL']['scales'])
