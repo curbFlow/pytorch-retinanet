@@ -34,7 +34,8 @@ def main(args=None):
     parser.add_argument('--csv_classes', help='Path to file containing class list (see readme)')
     parser.add_argument('--csv_val', help='Path to file containing validation annotations (optional, see readme)')
     parser.add_argument('--configfile', help='Path to the config file', default='config.txt', type=str)
-    parser.add_argument('--model', help='Path to the pretrained model file state dict where training must start from',
+    parser.add_argument('--model', help='Path to the pretrained model file state dict where training must start from, '
+                                        'if you want to use a pretrained retinanet.',
                         default=None, type=str)
     parser = parser.parse_args(args)
 
