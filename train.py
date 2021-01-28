@@ -94,12 +94,12 @@ def main(args=None):
                                                                                      max_side=maxside)]))
 
     sampler = AspectRatioBasedSampler(dataset_train, batch_size=batchsize, drop_last=False)
-    dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=sampler, pin_memory=True)
+    dataloader_train = DataLoader(dataset_train, num_workers=3, collate_fn=collater, batch_sampler=sampler)
     dataloader_val = None
 
     if dataset_val is not None:
         sampler_val = AspectRatioBasedSampler(dataset_val, batch_size=1, drop_last=False)
-        dataloader_val = DataLoader(dataset_val, num_workers=3, collate_fn=collater, batch_sampler=sampler_val, pin_memory=True)
+        dataloader_val = DataLoader(dataset_val, num_workers=3, collate_fn=collater, batch_sampler=sampler_val)
 
     # Create the model
     if depth == 18:
@@ -127,7 +127,7 @@ def main(args=None):
             retinanet = retinanet.cuda()
 
     if torch.cuda.is_available():
-        retinanet = torch.nn.DataParallel(retinanet).cuda()
+        retinanet = torch.nn.DataParallel(retinanet,device_ids=[0,1,2,3])
     else:
         retinanet = torch.nn.DataParallel(retinanet)
 
@@ -148,7 +148,6 @@ def main(args=None):
         else:
             retinanet.load_state_dict(torch.load(parser.model, map_location=torch.device('cpu')))
         print(f'LOADED PRETRAINED MODEL : {parser.model}')
-
 
     retinanet.train()
     retinanet.module.freeze_bn()
@@ -171,8 +170,7 @@ def main(args=None):
             try:
                 optimizer.zero_grad()
                 if torch.cuda.is_available():
-                    cuda0 = torch.device('cuda:0')
-                    classification_loss, regression_loss = retinanet([data['img'].to(cuda0).float(), data['annot'].to(cuda0)])
+                    classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
                 else:
                     classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
 
