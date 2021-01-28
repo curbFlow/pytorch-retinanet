@@ -170,8 +170,7 @@ def main(args=None):
             try:
                 optimizer.zero_grad()
                 if torch.cuda.is_available():
-                    with torch.device(0):
-                        classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
+                    classification_loss, regression_loss = retinanet([data['img'].cuda().float(), data['annot']])
                 else:
                     classification_loss, regression_loss = retinanet([data['img'].float(), data['annot']])
 
